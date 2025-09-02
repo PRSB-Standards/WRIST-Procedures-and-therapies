@@ -222,7 +222,7 @@
               "implementationGuidance": "<p><br></p>"
             },
             {
-              "description": "Any further textual comment to clarify such as statement that information is partial or incomplete. Also indicate the outcome of the procedure.",
+              "description": "<p>Any further textual comment to clarify such as statement that information is partial or incomplete. Also indicate the outcome of the procedure.</p>",
               "maximumMultiplicity": "1",
               "minimumMultiplicity": "0",
               "mro": "R",
@@ -230,16 +230,15 @@
               "type": "item",
               "valueDomain": [
                 {
-                  "property": [
-                    {
-                      "maxLength": "150"
-                    }
-                  ],
-                  "type": "text"
+                  "type": "PRSB-Standards/WRIST-IPS-Datatypes/Text@1-build.0.1"
                 }
               ],
-              "valueSets": "Free text",
-              "derivedFrom": "PRSB-Standards/WRIST-core-information-standard/Procedures and therapies/Procedure record entry/Comment@2-build.2.1"
+              "valueSets": "Free text ",
+              "derivedFrom": "PRSB-Standards/WRIST-core-information-standard/Procedures and therapies/Procedure record entry/Comment@2-build.2.1",
+              "informationType": "",
+              "relationshipType": "neither",
+              "isComponent": false,
+              "implementationGuidance": "<p><br></p>"
             }
           ],
           "description": "This is a procedure record entry. There may be 0 to many record entries under a section. Each record entry is made up of a number of elements or data items.",
