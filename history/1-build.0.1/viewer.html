@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Editor - PRSB-Standards/WRIST-Procedures-and-therapies</title>
+	<style>
+		* { box-sizing: border-box; }
+		html, body { margin: 0; padding: 0; overflow-x: hidden; }
+		::-webkit-scrollbar { display: none; }
+
+		:root {
+			--blue-dark: rgb(30, 64, 88);
+			--grey-light: #f3f3f2;
+			--grey-mid: #8591a9;
+			--white-soft: #ffffff;
+
+			/* Viewer clamp */
+			--row-lines: 3;
+			--lh: 1.35;
+			--cell-vpad: 4px;
+
+			/* Modal */
+			--overlay-bg: rgba(0,0,0,0.5);
+			--modal-bg: #fff;
+			--modal-max-w: 900px;
+			--modal-max-h: 80vh;
+			--modal-pad: 16px;
+			--modal-radius: 10px;
+		}
+		body, input, textarea, label, button {
+			font-family: "Segoe UI", sans-serif;
+			font-size: 14px;
+			color: var(--blue-dark);
+		}
+
+		/* Table Base */
+		table {
+			width: 100%;
+			table-layout: fixed;
+			border-collapse: collapse;
+			font-size: 14px;
+			margin-top: 40px;
+		}
+		thead th {
+			position: sticky;
+			top: 0;
+			background: #fff;
+			z-index: 2;
+			color: rgb(54, 75, 90);
+			font-weight: bold;
+			text-align: left;
+			vertical-align: middle;
+			padding: 8px;
+			border: none;
+			word-wrap: break-word;
+		}
+		tbody td {
+			border: none;
+			padding: 8px;
+			text-align: left;
+			vertical-align: top;
+			word-wrap: break-word;
+		}
+
+		/* Row colours */
+		tbody tr[data-depth="0"] {
+			background: #004466 !important;
+			color: #fff;
+		}
+		tbody tr:not([data-depth="0"]) {
+			background: rgba(66, 110, 168, 0.09);
+			color: #000;
+			border-top: 1px solid #ccc;
+		}
+		tbody tr + tr { border-top: 4px solid #fff; }
+		tr.clickable { cursor: pointer; }
+
+		/* Utility */
+		.sticky-header { position: sticky; top: 0; background: #fff; z-index: 2; }
+		.hidden { display: none !important; }
+		td, th { word-break: break-word; overflow-wrap: anywhere; }
+
+		/* Tree arrow */
+		.arrow { display: inline-block; width: 0.6em; margin-right: 4px; color: inherit; }
+		tr[data-has-children="true"] .arrow::before { content: "▶"; font-size: 0.8em; transition: transform 0.2s; }
+		tr.expanded .arrow::before { content: "▼"; }
+
+		/* Cardinality cell style */
+		td.cardinality { white-space: nowrap; font-family: monospace; }
+
+		/* MRO column is compact */
+		th[data-col="mro"], td[data-col="mro"] { text-align: center; vertical-align: middle; overflow: hidden; }
+		thead th[data-col="mro"] { text-align: center; }
+		tbody td:first-child { padding-left: 0 !important; text-align: center; }
+		tbody td.mro { padding-left: 0 !important; text-align: center; }
+
+		/* Uniform 3-line rows */
+		thead th, tbody td { line-height: var(--lh); }
+		tbody td .cell{
+			display: block;
+			overflow: hidden;
+			max-height: calc(var(--row-lines) * 1em * var(--lh));
+			position: relative;
+		}
+		tbody tr{ height: calc(var(--row-lines) * 1em * var(--lh) + var(--cell-vpad) * 2); }
+		tbody td{ padding-top: var(--cell-vpad); padding-bottom: var(--cell-vpad); }
+
+		/* Read more link */
+		.read-more {
+			display: inline-block;
+			margin-top: 4px;
+			font-size: 12px;
+			text-decoration: underline;
+			cursor: pointer;
+			color: #1f4e79;
+		}
+
+		/* Value Sets list styling (viewer) */
+		.vs-list { margin: 0; padding-left: 18px; list-style-position: outside; }
+		.vs-list li { margin: 0 0 4px 0; line-height: 1.25; }
+
+		/* Modal */
+		.modal-overlay {
+			position: fixed;
+			inset: 0;
+			background: var(--overlay-bg);
+			display: none;
+			align-items: center;
+			justify-content: center;
+			z-index: 9999;
+		}
+		.modal-overlay.show { display: flex; }
+
+		.modal {
+			background: var(--modal-bg);
+			max-width: var(--modal-max-w);
+			max-height: var(--modal-max-h);
+			width: calc(100vw - 40px);
+			border-radius: var(--modal-radius);
+			box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+			overflow: hidden;
+			display: flex;
+			flex-direction: column;
+		}
+		.modal-header {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			padding: 10px 14px;
+			border-bottom: 1px solid #e5e7eb;
+			background: #f8fafc;
+		}
+		.modal-title {
+			font-weight: 600;
+			margin: 0;
+			font-size: 14px;
+		}
+		.modal-close {
+			border: none;
+			background: transparent;
+			font-size: 18px;
+			cursor: pointer;
+			line-height: 1;
+		}
+		.modal-body {
+			padding: var(--modal-pad);
+			overflow: auto;
+		}
+		.modal-body :is(p, li){ line-height: 1.5; }
+		.modal-body a{ text-decoration: underline; }
+
+		 .read-more {
+			display: inline-block;
+			margin-top: 4px;
+			font-size: 12px;
+			text-decoration: underline;
+			cursor: pointer;
+		}
+		.read-more.light { color: #1f4e79; } /* for light rows (depth > 0) */
+		.read-more.dark  { color: #ffffff; } /* for dark top-level row (depth == 0) */
+	</style>
+</head>
+<body>
+	
+
+	
+	
+	
+	
+
+	<div style="max-height: 95vh; overflow-x: auto; overflow-y: auto;">
+		<table>
+			<colgroup>
+				
+					
+						<col style="width: 56px">
+					
+				
+					
+						<col style="width: 220px">
+					
+				
+					
+						<col>
+					
+				
+					
+						<col style="width: 200px">
+					
+				
+					
+						<col style="width: 420px">
+					
+				
+					
+						<col style="width: 160px">
+					
+				
+					
+						<col style="width: 140px">
+					
+				
+					
+						<col style="width: 120px">
+					
+				
+					
+						<col style="width: 220px">
+					
+				
+			</colgroup>
+
+			<thead>
+				<tr class="sticky-header">
+					
+						<th data-col="mro">MRO</th>
+					
+						<th data-col="name">Name</th>
+					
+						<th data-col="description">Description</th>
+					
+						<th data-col="value_sets">Value Sets</th>
+					
+						<th data-col="implementation_guidance">Implementation Guidance</th>
+					
+						<th data-col="information_type">Information Type</th>
+					
+						<th data-col="data_type">Data Type</th>
+					
+						<th data-col="cardinality">Cardinality</th>
+					
+						<th data-col="derived_from">Derived From</th>
+					
+				</tr>
+			</thead>
+
+			<tbody>
+			
+			
+			
+				
+				
+				<tr
+					data-id="root-0"
+					data-parent-id=""
+					data-depth="0"
+					data-has-children="true"
+					class=""
+				>
+					<td class="mro">R</td>
+
+					<td class="name" style="padding-left: 0px;">
+						<span class="arrow"></span>
+						<div class="cell">Procedures and therapies</div>
+					</td>
+
+					<td><div class="cell" title="The details of any procedures performed, planned or not done. Includes both psychological and medical therapies and procedures (e.g. cognitive behaviour therapy, hip replacement)."><p>The details of any procedures performed, planned or not done. Includes both psychological and medical therapies and procedures (e.g. cognitive behaviour therapy, hip replacement).</p></div></td>
+					<td><div class="cell" title=""></div></td>
+					<td><div class="cell" title=""><p><br></p></div></td>
+					<td><div class="cell">Event.Record</div></td>
+					<td><div class="cell"></div></td>
+					<td class="cardinality">0…1</td>
+					<td><div class="cell">PRSB-Standards/WRIST-core-information-standard/Procedures and therapies@2-build.2.1</div></td>
+				</tr>
+
+				
+					
+			
+				
+				
+				<tr
+					data-id="root-0-0"
+					data-parent-id="root-0"
+					data-depth="1"
+					data-has-children="true"
+					class="hidden"
+				>
+					<td class="mro">R</td>
+
+					<td class="name" style="padding-left: 20px;">
+						<span class="arrow"></span>
+						<div class="cell">Procedure record entry</div>
+					</td>
+
+					<td><div class="cell" title="This is a procedure record entry. There may be 0 to many record entries under a section. Each record entry is made up of a number of elements or data items.">This is a procedure record entry. There may be 0 to many record entries under a section. Each record entry is made up of a number of elements or data items.</div></td>
+					<td><div class="cell" title=""></div></td>
+					<td><div class="cell" title=""></div></td>
+					<td><div class="cell"></div></td>
+					<td><div class="cell"></div></td>
+					<td class="cardinality">0…*</td>
+					<td><div class="cell">PRSB-Standards/WRIST-core-information-standard/Procedures and therapies/Procedure record entry@2-build.2.1</div></td>
+				</tr>
+
+				
+					
+			
+				
+				
+				<tr
+					data-id="root-0-0-0"
+					data-parent-id="root-0-0"
+					data-depth="2"
+					data-has-children="false"
+					class="hidden"
+				>
+					<td class="mro">M</td>
+
+					<td class="name" style="padding-left: 40px;">
+						<span class="arrow"></span>
+						<div class="cell">Procedure</div>
+					</td>
+
+					<td><div class="cell" title="The therapeutic or diagnostic procedure performed, planned or not done. Includes both psychological and medical therapies and procedures. Complementary or alternative procedures should be recorded here."><p>The therapeutic or diagnostic procedure performed, planned or not done. Includes both psychological and medical therapies and procedures. Complementary or alternative procedures should be recorded here.</p></div></td>
+					<td><div class="cell" title="SNOMED_CT:&#34;&lt;71388002 |Procedure| OR &lt;129125009 |Procedure with explicit context|&#34;">SNOMED_CT:&#34;&lt;71388002 |Procedure| OR &lt;129125009 |Procedure with explicit context|&#34; </div></td>
+					<td><div class="cell" title=""><p><br></p></div></td>
+					<td><div class="cell"></div></td>
+					<td><div class="cell"></div></td>
+					<td class="cardinality">1…1</td>
+					<td><div class="cell">PRSB-Standards/WRIST-core-information-standard/Procedures and therapies/Procedure record entry/Procedure@2-build.2.1</div></td>
+				</tr>
+
+				
+			
+				
+				
+				<tr
+					data-id="root-0-0-1"
+					data-parent-id="root-0-0"
+					data-depth="2"
+					data-has-children="false"
+					class="hidden"
+				>
+					<td class="mro">R</td>
+
+					<td class="name" style="padding-left: 40px;">
+						<span class="arrow"></span>
+						<div class="cell">Status</div>
+					</td>
+
+					<td><div class="cell" title="A code specifying the state of the procedure. Generally, this will be the in-progress or completed state."><p>A code specifying the state of the procedure. Generally, this will be the in-progress or completed state.</p></div></td>
+					<td><div class="cell" title="https://simplifier.net/packages/hl7.fhir.r4.core/4.0.1/files/2832472">&lt;a href=&#34;https://simplifier.net/packages/hl7.fhir.r4.core/4.0.1/files/2832472&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;https://simplifier.net/packages/hl7.fhir.r4.core/4.0.1/files/2832472&lt;/a&gt;</div></td>
+					<td><div class="cell" title="Example codes: preparation in-progress not-done: on-hold stopped completed entered-in-error unknown"><p>Example codes: preparation in-progress not-done: on-hold stopped completed entered-in-error unknown</p></div></td>
+					<td><div class="cell"></div></td>
+					<td><div class="cell"></div></td>
+					<td class="cardinality">0…1</td>
+					<td><div class="cell"></div></td>
+				</tr>
+
+				
+			
+				
+				
+				<tr
+					data-id="root-0-0-2"
+					data-parent-id="root-0-0"
+					data-depth="2"
+					data-has-children="false"
+					class="hidden"
+				>
+					<td class="mro">R</td>
+
+					<td class="name" style="padding-left: 40px;">
+						<span class="arrow"></span>
+						<div class="cell">Part of (parent procedure)</div>
+					</td>
+
+					<td><div class="cell" title="Details of the parent procedure that this procedure is part of."><p>Details of the parent procedure that this procedure is part of.</p></div></td>
+					<td><div class="cell" title="SNOMED_CT:&#34;SNOMED_CT:&#34;&lt; &lt;129125009 |Procedure with explicit context|&#34;">SNOMED_CT:&#34;&lt;71388002 |Procedure|&#34; &lt;br&gt;SNOMED_CT:&#34;&lt; &lt;129125009 |Procedure with explicit context|&#34; </div></td>
+					<td><div class="cell" title=""><p><br></p></div></td>
+					<td><div class="cell"></div></td>
+					<td><div class="cell"></div></td>
+					<td class="cardinality">0…1</td>
+					<td><div class="cell"></div></td>
+				</tr>
+
+				
+			
+				
+				
+				<tr
+					data-id="root-0-0-3"
+					data-parent-id="root-0-0"
+					data-depth="2"
+					data-has-children="false"
+					class="hidden"
+				>
+					<td class="mro">R</td>
+
+					<td class="name" style="padding-left: 40px;">
+						<span class="arrow"></span>
+						<div class="cell">Indication for procedure </div>
+					</td>
+
+					<td><div class="cell" title="The indication for the procedure."><p>The indication for the procedure.</p></div></td>
+					<td><div class="cell" title="SNOMED_CT:&#34;404684003 | Clinical finding&#34; SNOMED_CT:&#34;71388002 | Procedure&#34;">SNOMED_CT:&#34;404684003 | Clinical finding&#34; &lt;br&gt;SNOMED_CT:&#34;71388002 | Procedure&#34; </div></td>
+					<td><div class="cell" title=""><p><br></p></div></td>
+					<td><div class="cell"></div></td>
+					<td><div class="cell"></div></td>
+					<td class="cardinality">0…1</td>
+					<td><div class="cell"></div></td>
+				</tr>
+
+				
+			
+				
+				
+				<tr
+					data-id="root-0-0-4"
+					data-parent-id="root-0-0"
+					data-depth="2"
+					data-has-children="false"
+					class="hidden"
+				>
+					<td class="mro">R</td>
+
+					<td class="name" style="padding-left: 40px;">
+						<span class="arrow"></span>
+						<div class="cell">Not performed reason</div>
+					</td>
+
+					<td><div class="cell" title="Not performed reason for the procedure."><p>Not performed reason for the procedure.</p></div></td>
+					<td><div class="cell" title="https://www.hl7.org/fhir/R4/valueset-procedure-not-performed-reason.html">&lt;a href=&#34;https://www.hl7.org/fhir/R4/valueset-procedure-not-performed-reason.html&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;https://www.hl7.org/fhir/R4/valueset-procedure-not-performed-reason.html&lt;/a&gt;</div></td>
+					<td><div class="cell" title=""><p><br></p></div></td>
+					<td><div class="cell"></div></td>
+					<td><div class="cell"></div></td>
+					<td class="cardinality">0…1</td>
+					<td><div class="cell"></div></td>
+				</tr>
+
+				
+			
+				
+				
+				<tr
+					data-id="root-0-0-5"
+					data-parent-id="root-0-0"
+					data-depth="2"
+					data-has-children="false"
+					class="hidden"
+				>
+					<td class="mro">R</td>
+
+					<td class="name" style="padding-left: 40px;">
+						<span class="arrow"></span>
+						<div class="cell">Anatomical site</div>
+					</td>
+
+					<td><div class="cell" title="The body site of the procedure."><p>The body site of the procedure.</p></div></td>
+					<td><div class="cell" title="SNOMED_CT:&#34;&lt;123037004 |Body structure (body structure)|&#34;">SNOMED_CT:&#34;&lt;123037004 |Body structure (body structure)|&#34; </div></td>
+					<td><div class="cell" title=""><p><br></p></div></td>
+					<td><div class="cell"></div></td>
+					<td><div class="cell"></div></td>
+					<td class="cardinality">0…1</td>
+					<td><div class="cell">PRSB-Standards/WRIST-core-information-standard/Procedures and therapies/Procedure record entry/Anatomical site@2-build.2.1</div></td>
+				</tr>
+
+				
+			
+				
+				
+				<tr
+					data-id="root-0-0-6"
+					data-parent-id="root-0-0"
+					data-depth="2"
+					data-has-children="false"
+					class="hidden"
+				>
+					<td class="mro">R</td>
+
+					<td class="name" style="padding-left: 40px;">
+						<span class="arrow"></span>
+						<div class="cell">Laterality</div>
+					</td>
+
+					<td><div class="cell" title="The laterality of the procedure."><p>The laterality of the procedure.</p></div></td>
+					<td><div class="cell" title="SNOMEDCT:&#34;&lt;182353008 |Side (qualifier value)|&#34;">SNOMEDCT:&#34;&lt;182353008 |Side (qualifier value)|&#34; </div></td>
+					<td><div class="cell" title=""><p><br></p></div></td>
+					<td><div class="cell"></div></td>
+					<td><div class="cell"></div></td>
+					<td class="cardinality">0…1</td>
+					<td><div class="cell">PRSB-Standards/WRIST-core-information-standard/Procedures and therapies/Procedure record entry/Laterality@2-build.2.1</div></td>
+				</tr>
+
+				
+			
+				
+				
+				<tr
+					data-id="root-0-0-7"
+					data-parent-id="root-0-0"
+					data-depth="2"
+					data-has-children="false"
+					class="hidden"
+				>
+					<td class="mro"></td>
+
+					<td class="name" style="padding-left: 40px;">
+						<span class="arrow"></span>
+						<div class="cell">Outcome</div>
+					</td>
+
+					<td><div class="cell" title="The outcome of the procedure."><p>The outcome of the procedure.</p></div></td>
+					<td><div class="cell" title=""></div></td>
+					<td><div class="cell" title=""><p><br></p></div></td>
+					<td><div class="cell"></div></td>
+					<td><div class="cell"></div></td>
+					<td class="cardinality">0…1</td>
+					<td><div class="cell"></div></td>
+				</tr>
+
+				
+			
+				
+				
+				<tr
+					data-id="root-0-0-8"
+					data-parent-id="root-0-0"
+					data-depth="2"
+					data-has-children="false"
+					class="hidden"
+				>
+					<td class="mro">R</td>
+
+					<td class="name" style="padding-left: 40px;">
+						<span class="arrow"></span>
+						<div class="cell">Complications related to procedure</div>
+					</td>
+
+					<td><div class="cell" title="Details of any intra-operative complications encountered during the procedure, arising during the person’s stay in the recovery unit or directly attributable to the procedure."><p>Details of any intra-operative complications encountered during the procedure, arising during the person’s stay in the recovery unit or directly attributable to the procedure.</p></div></td>
+					<td><div class="cell" title="SNOMED_CT:&#34;&lt;404684003 |Clinical finding (finding)|&#34;">SNOMED_CT:&#34;&lt;404684003 |Clinical finding (finding)|&#34; </div></td>
+					<td><div class="cell" title=""><p><br></p></div></td>
+					<td><div class="cell"></div></td>
+					<td><div class="cell"></div></td>
+					<td class="cardinality">0…1</td>
+					<td><div class="cell">PRSB-Standards/WRIST-core-information-standard/Procedures and therapies/Procedure record entry/Complications related to procedure@2-build.2.1</div></td>
+				</tr>
+
+				
+			
+				
+				
+				<tr
+					data-id="root-0-0-9"
+					data-parent-id="root-0-0"
+					data-depth="2"
+					data-has-children="false"
+					class="hidden"
+				>
+					<td class="mro">R</td>
+
+					<td class="name" style="padding-left: 40px;">
+						<span class="arrow"></span>
+						<div class="cell">Specific anesthesia issues</div>
+					</td>
+
+					<td><div class="cell" title="Details of any adverse reaction to any anesthetic agents including local anesthesia. Problematic intubation, transfusion reaction, etc."><p>Details of any adverse reaction to any anesthetic agents including local anesthesia. Problematic intubation, transfusion reaction, etc.</p></div></td>
+					<td><div class="cell" title=""></div></td>
+					<td><div class="cell" title=""><p><br></p></div></td>
+					<td><div class="cell"></div></td>
+					<td><div class="cell"></div></td>
+					<td class="cardinality">0…1</td>
+					<td><div class="cell">PRSB-Standards/WRIST-core-information-standard/Procedures and therapies/Procedure record entry/Specific anesthesia issues@2-build.2.1</div></td>
+				</tr>
+
+				
+			
+				
+				
+				<tr
+					data-id="root-0-0-10"
+					data-parent-id="root-0-0"
+					data-depth="2"
+					data-has-children="false"
+					class="hidden"
+				>
+					<td class="mro">R</td>
+
+					<td class="name" style="padding-left: 40px;">
+						<span class="arrow"></span>
+						<div class="cell">Comment</div>
+					</td>
+
+					<td><div class="cell" title="Any further textual comment to clarify such as statement that information is partial or incomplete. Also indicate the outcome of the procedure."><p>Any further textual comment to clarify such as statement that information is partial or incomplete. Also indicate the outcome of the procedure.</p></div></td>
+					<td><div class="cell" title=""></div></td>
+					<td><div class="cell" title=""><p><br></p></div></td>
+					<td><div class="cell"></div></td>
+					<td><div class="cell"></div></td>
+					<td class="cardinality">0…1</td>
+					<td><div class="cell">PRSB-Standards/WRIST-core-information-standard/Procedures and therapies/Procedure record entry/Comment@2-build.2.1</div></td>
+				</tr>
+
+				
+			
+			
+				
+			
+			
+				
+			
+			
+			</tbody>
+
+		</table>
+	</div>
+
+	<!-- Modal -->
+	<div class="modal-overlay" id="viewer-modal" role="dialog" aria-modal="true" aria-labelledby="viewer-modal-title">
+		<div class="modal">
+			<div class="modal-header">
+				<h2 class="modal-title" id="viewer-modal-title">Details</h2>
+				<button class="modal-close" type="button" aria-label="Close" id="viewer-modal-close">×</button>
+			</div>
+			<div class="modal-body" id="viewer-modal-body"></div>
+		</div>
+	</div>
+
+	<script>
+  const data = {"component_sets": [{"id": "1-build.0.1", "name": "PRSB-Standards/WRIST-IPS-Datatypes"}, {"id": "2-build.2.1", "name": "PRSB-Standards/WRIST-core-information-standard"}, {"id": "1-build.0.1", "name": "PRSB-Standards/WRIST-PRSB-Datatypes"}], "concept": [{"concept": [{"concept": [{"concept": [], "derivedFrom": "PRSB-Standards/WRIST-core-information-standard/Procedures and therapies/Procedure record entry/Procedure@2-build.2.1", "description": "\u003cp\u003eThe therapeutic or diagnostic procedure performed, planned or not done. Includes both psychological and medical therapies and procedures. Complementary or alternative procedures should be recorded here.\u003c/p\u003e", "implementationGuidance": "\u003cp\u003e\u003cbr\u003e\u003c/p\u003e", "informationType": "", "isComponent": false, "maximumMultiplicity": "1", "minimumMultiplicity": "1", "mro": "M", "name": "Procedure", "relationshipType": "neither", "type": "item", "valueDomain": [{"type": "PRSB-Standards/WRIST-PRSB-Datatypes/Code or Text@1-build.0.1"}], "valueSets": "SNOMED_CT:\"\u003c71388002 |Procedure| OR \u003c129125009 |Procedure with explicit context|\" "}, {"concept": [], "derivedFrom": "", "description": "\u003cp\u003eA code specifying the state of the procedure. Generally, this will be the in-progress or completed state.\u003c/p\u003e", "implementationGuidance": "\u003cp\u003eExample codes: preparation in-progress not-done: on-hold stopped completed entered-in-error unknown\u003c/p\u003e", "informationType": "", "isComponent": false, "maximumMultiplicity": "1", "minimumMultiplicity": "0", "mro": "R", "name": "Status", "relationshipType": "specialisation", "type": "item", "valueDomain": [{"type": "PRSB-Standards/WRIST-IPS-Datatypes/Coded Element@1-build.0.1"}], "valueSets": "\u003ca href=\"https://simplifier.net/packages/hl7.fhir.r4.core/4.0.1/files/2832472\" target=\"_blank\" rel=\"noopener\"\u003ehttps://simplifier.net/packages/hl7.fhir.r4.core/4.0.1/files/2832472\u003c/a\u003e"}, {"concept": [], "derivedFrom": "", "description": "\u003cp\u003eDetails of the parent procedure that this procedure is part of.\u003c/p\u003e", "implementationGuidance": "\u003cp\u003e\u003cbr\u003e\u003c/p\u003e", "informationType": "", "isComponent": false, "maximumMultiplicity": "1", "minimumMultiplicity": "0", "mro": "R", "name": "Part of (parent procedure)", "relationshipType": "specialisation", "type": "", "valueDomain": [{"type": "PRSB-Standards/WRIST-IPS-Datatypes/Coded Element@1-build.0.1"}], "valueSets": "SNOMED_CT:\"\u003c71388002 |Procedure|\" \u003cbr\u003eSNOMED_CT:\"\u003c \u003c129125009 |Procedure with explicit context|\" "}, {"concept": [], "derivedFrom": "", "description": "\u003cp\u003eThe indication for the procedure.\u003c/p\u003e", "implementationGuidance": "\u003cp\u003e\u003cbr\u003e\u003c/p\u003e", "informationType": "", "isComponent": false, "maximumMultiplicity": "1", "minimumMultiplicity": "0", "mro": "R", "name": "Indication for procedure ", "relationshipType": "specialisation", "type": "item", "valueDomain": [{"type": "PRSB-Standards/WRIST-IPS-Datatypes/Coded Element@1-build.0.1"}], "valueSets": "SNOMED_CT:\"404684003 | Clinical finding\" \u003cbr\u003eSNOMED_CT:\"71388002 | Procedure\" "}, {"concept": [], "derivedFrom": "", "description": "\u003cp\u003eNot performed reason for the procedure.\u003c/p\u003e", "implementationGuidance": "\u003cp\u003e\u003cbr\u003e\u003c/p\u003e", "informationType": "", "isComponent": false, "maximumMultiplicity": "1", "minimumMultiplicity": "0", "mro": "R", "name": "Not performed reason", "relationshipType": "specialisation", "type": "item", "valueDomain": [{"type": "PRSB-Standards/WRIST-IPS-Datatypes/Coded Element@1-build.0.1"}], "valueSets": "\u003ca href=\"https://www.hl7.org/fhir/R4/valueset-procedure-not-performed-reason.html\" target=\"_blank\" rel=\"noopener\"\u003ehttps://www.hl7.org/fhir/R4/valueset-procedure-not-performed-reason.html\u003c/a\u003e"}, {"concept": [], "derivedFrom": "PRSB-Standards/WRIST-core-information-standard/Procedures and therapies/Procedure record entry/Anatomical site@2-build.2.1", "description": "\u003cp\u003eThe body site of the procedure.\u003c/p\u003e", "implementationGuidance": "\u003cp\u003e\u003cbr\u003e\u003c/p\u003e", "informationType": "", "isComponent": false, "maximumMultiplicity": "1", "minimumMultiplicity": "0", "mro": "R", "name": "Anatomical site", "relationshipType": "neither", "type": "group", "valueDomain": [{"type": ""}], "valueSets": "SNOMED_CT:\"\u003c123037004 |Body structure (body structure)|\" "}, {"concept": [], "derivedFrom": "PRSB-Standards/WRIST-core-information-standard/Procedures and therapies/Procedure record entry/Laterality@2-build.2.1", "description": "\u003cp\u003eThe laterality of the procedure.\u003c/p\u003e", "implementationGuidance": "\u003cp\u003e\u003cbr\u003e\u003c/p\u003e", "informationType": "", "isComponent": false, "maximumMultiplicity": "1", "minimumMultiplicity": "0", "mro": "R", "name": "Laterality", "relationshipType": "specialisation", "type": "group", "valueDomain": [{"type": ""}], "valueSets": "SNOMEDCT:\"\u003c182353008 |Side (qualifier value)|\" "}, {"concept": [], "derivedFrom": "", "description": "\u003cp\u003eThe outcome of the procedure.\u003c/p\u003e", "implementationGuidance": "\u003cp\u003e\u003cbr\u003e\u003c/p\u003e", "informationType": "", "isComponent": false, "maximumMultiplicity": "1", "minimumMultiplicity": "0", "mro": "", "name": "Outcome", "relationshipType": "specialisation", "type": "item", "valueDomain": [{"type": "PRSB-Standards/WRIST-IPS-Datatypes/Coded Element@1-build.0.1"}], "valueSets": ""}, {"concept": [], "derivedFrom": "PRSB-Standards/WRIST-core-information-standard/Procedures and therapies/Procedure record entry/Complications related to procedure@2-build.2.1", "description": "\u003cp\u003eDetails of any intra-operative complications encountered during the procedure, arising during the person\u2019s stay in the recovery unit or directly attributable to the procedure.\u003c/p\u003e", "implementationGuidance": "\u003cp\u003e\u003cbr\u003e\u003c/p\u003e", "informationType": "", "isComponent": false, "maximumMultiplicity": "1", "minimumMultiplicity": "0", "mro": "R", "name": "Complications related to procedure", "relationshipType": "neither", "type": "group", "valueDomain": [{"type": "PRSB-Standards/WRIST-IPS-Datatypes/Coded Element@1-build.0.1"}], "valueSets": "SNOMED_CT:\"\u003c404684003 |Clinical finding (finding)|\" "}, {"concept": [], "derivedFrom": "PRSB-Standards/WRIST-core-information-standard/Procedures and therapies/Procedure record entry/Specific anesthesia issues@2-build.2.1", "description": "\u003cp\u003eDetails of any adverse reaction to any anesthetic agents including local anesthesia. Problematic intubation, transfusion reaction, etc.\u003c/p\u003e", "implementationGuidance": "\u003cp\u003e\u003cbr\u003e\u003c/p\u003e", "informationType": "", "isComponent": false, "maximumMultiplicity": "1", "minimumMultiplicity": "0", "mro": "R", "name": "Specific anesthesia issues", "relationshipType": "neither", "type": "group", "valueDomain": [{"type": "PRSB-Standards/WRIST-IPS-Datatypes/Coded Element@1-build.0.1"}], "valueSets": ""}, {"derivedFrom": "PRSB-Standards/WRIST-core-information-standard/Procedures and therapies/Procedure record entry/Comment@2-build.2.1", "description": "\u003cp\u003eAny further textual comment to clarify such as statement that information is partial or incomplete. Also indicate the outcome of the procedure.\u003c/p\u003e", "implementationGuidance": "\u003cp\u003e\u003cbr\u003e\u003c/p\u003e", "informationType": "", "isComponent": false, "maximumMultiplicity": "1", "minimumMultiplicity": "0", "mro": "R", "name": "Comment", "relationshipType": "neither", "type": "item", "valueDomain": [{"type": "PRSB-Standards/WRIST-IPS-Datatypes/Text@1-build.0.1"}], "valueSets": ""}], "derivedFrom": "PRSB-Standards/WRIST-core-information-standard/Procedures and therapies/Procedure record entry@2-build.2.1", "description": "This is a procedure record entry. There may be 0 to many record entries under a section. Each record entry is made up of a number of elements or data items.", "maximumMultiplicity": "*", "minimumMultiplicity": "0", "mro": "R", "name": "Procedure record entry", "type": "group"}], "derivedFrom": "PRSB-Standards/WRIST-core-information-standard/Procedures and therapies@2-build.2.1", "description": "\u003cp\u003eThe details of any procedures performed, planned or not done. Includes both psychological and medical therapies and procedures (e.g. cognitive behaviour therapy, hip replacement).\u003c/p\u003e", "implementationGuidance": "\u003cp\u003e\u003cbr\u003e\u003c/p\u003e", "informationType": "Event.Record", "isComponent": true, "maximumMultiplicity": "1", "minimumMultiplicity": "0", "mro": "R", "name": "Procedures and therapies", "relationshipType": "neither", "type": "group", "valueDomain": [{"type": ""}], "valueSets": ""}], "description": "\u003cp\u003eUpdated Procedures and therapies as agreed on 16th July 2025.\u003c/p\u003e", "name": "Procedures-and-therapies", "version": "1-build.0.0"};
+  
+  document.addEventListener('DOMContentLoaded', () => {
+    /* ---------- Tree expand/collapse ---------- */
+    const rows = () => Array.from(document.querySelectorAll('tr[data-id]'));
+
+    function toggleRows(pid, show) {
+      rows().forEach(r => {
+        if (r.getAttribute('data-parent-id') === pid) {
+          r.classList.toggle('hidden', !show);
+          if (!show) {
+            r.classList.remove('expanded');
+            toggleRows(r.getAttribute('data-id'), false);
+          } else {
+            // Children just became visible: enhance them after layout paints
+            requestAnimationFrame(() => {
+              addReadMoreLinksInRow(r);          // add for this child row
+              // If this child has already-expanded state, cascade enhance
+              if (r.classList.contains('expanded')) {
+                toggleRows(r.getAttribute('data-id'), true);
+              }
+            });
+          }
+        }
+      });
+    }
+
+    rows()
+	.filter(r => r.getAttribute('data-has-children') === 'true')
+	.forEach(r => {
+		r.classList.add('clickable');
+		r.addEventListener('click', e => {
+		const clickedCell = e.target.closest('td');
+		if (!clickedCell) return;
+
+		// 🚫 Prevent toggling if the click was inside a Read more link
+		if (e.target.closest('.read-more')) return;
+
+		const id = r.getAttribute('data-id');
+		const expanded = r.classList.toggle('expanded');
+		toggleRows(id, expanded);
+		});
+	});
+
+
+    /* ---------- Value Sets parsing/render ---------- */
+    function htmlUnescape(s) {
+      const t = document.createElement("textarea");
+      t.innerHTML = String(s ?? "");
+      return t.value;
+    }
+    function stripTags(s) { return String(s ?? "").replace(/<[^>]*>/g, ""); }
+    function cleanLabelPrefix(s) {
+      return String(s ?? "").replace(/\s*[:\-–—,]+\s*$/g, "").trim();
+    }
+    function parseValueSetsHTML(input) {
+  if (!input) return [];
+
+  let html = htmlUnescape(String(input)).replace(/\\"/g, '"');
+  html = html.replace(/<\/(div|p)>/gi, "\n").replace(/<br\s*\/?>/gi, "\n");
+
+  const segments = html.split("\n").map(s => s.trim()).filter(Boolean);
+  const items = [];
+
+  for (const seg of segments) {
+    const box = document.createElement("div");
+    box.innerHTML = seg;
+
+    const anchors = Array.from(box.querySelectorAll("a"));
+    if (!anchors.length) {
+      const only = cleanLabelPrefix(stripTags(seg));
+      if (only) items.push({ label: only, url: "", text: "" });
+      continue;
+    }
+
+    // Determine prefix from the text BEFORE the first <a>
+    const firstAnchorIdx = seg.search(/<a\b/i);
+    const prefix = firstAnchorIdx >= 0
+      ? cleanLabelPrefix(stripTags(seg.slice(0, firstAnchorIdx)))
+      : "";
+
+    for (const a of anchors) {
+      const url = (a.getAttribute("href") || "").trim();
+      const text = (a.textContent || "").trim();
+      items.push({ label: prefix, url, text });
+    }
+    // NOTE: intentionally ignore any trailing text after the last </a>
+  }
+
+  return items;
+}
+
+    function esc(s) {
+      return String(s ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+    function renderValueSetsColumn() {
+      const ths = Array.from(document.querySelectorAll('thead th'));
+      const vsIndex = ths.findIndex(th => th.dataset.col === 'value_sets');
+      if (vsIndex === -1) return;
+      document.querySelectorAll('tbody tr').forEach(tr => {
+        const td = tr.children[vsIndex];
+        if (!td) return;
+        const cell = td.querySelector('.cell') || td;
+        const raw  = cell.innerHTML || cell.textContent;
+        const items = parseValueSetsHTML(raw);
+        if (items.length) {
+          cell.innerHTML =
+            '<ul class="vs-list">' +
+            items.map(it => {
+              const label = it.label ? `<strong>${esc(it.label)}</strong>` : '';
+              const link  = it.url
+                ? `<a href="${esc(it.url)}" target="_blank" rel="noopener">${esc(it.text || it.url)}</a>`
+                : esc(it.text || '');
+              return `<li>${label && link ? `${label} — ${link}` : (label || link)}</li>`;
+            }).join('') +
+            '</ul>';
+        } else {
+          cell.textContent = stripTags(htmlUnescape(raw)).trim();
+        }
+      });
+    }
+
+    /* ---------- Modal ---------- */
+    const overlay    = document.getElementById('viewer-modal');
+    const modalBody  = document.getElementById('viewer-modal-body');
+    const modalTitle = document.getElementById('viewer-modal-title');
+    const modalClose = document.getElementById('viewer-modal-close');
+
+    function openModal(title, html) {
+      modalTitle.textContent = title || 'Details';
+      modalBody.innerHTML = html || '';
+      overlay.classList.add('show');
+      modalClose.focus();
+    }
+    function closeModal() {
+      overlay.classList.remove('show');
+      modalBody.innerHTML = '';
+    }
+    modalClose.addEventListener('click', closeModal);
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && overlay.classList.contains('show')) closeModal(); });
+
+    /* ---------- Read-more: adaptive + recursive ---------- */
+    function headerKeys() {
+      return Array.from(document.querySelectorAll('thead th')).map(th => th.dataset.col || '');
+    }
+
+    function ensureReadMoreForCell(td, cell, depth, colKey) {
+      // remove any stale link first (for recompute on resize/expand)
+      const old = td.querySelector('.read-more');
+      if (old) old.remove();
+
+      // If content visually overflows the clamp, add the link
+      const truncated = cell.scrollHeight > cell.clientHeight + 1;
+      if (!truncated) return;
+
+      const link = document.createElement('a');
+      link.href = '#';
+      link.className = 'read-more ' + (depth === 0 ? 'dark' : 'light');
+      link.textContent = 'Read more';
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const title = (colKey || 'Details').replace(/_/g,' ').replace(/\b\w/g, c => c.toUpperCase());
+        openModal(title, cell.innerHTML); // keep HTML (links, lists)
+      });
+      td.appendChild(link);
+    }
+
+    function addReadMoreLinksInRow(tr) {
+      if (tr.classList.contains('hidden')) return; // only when visible
+      const depth = Number(tr.getAttribute('data-depth') || 0);
+      const keys = headerKeys();
+
+      Array.from(tr.children).forEach((td, idx) => {
+        // target ALL columns; we rely on the .cell wrapper when present
+        const cell = td.querySelector('.cell') || td;
+        // Let layout settle if row just became visible
+        requestAnimationFrame(() => ensureReadMoreForCell(td, cell, depth, keys[idx]));
+      });
+    }
+
+    function refreshReadMoreAll() {
+      rows().forEach(addReadMoreLinksInRow);
+    }
+
+    /* ---------- Run sequence ---------- */
+    renderValueSetsColumn();     // build Value Sets lists (affects heights)
+    requestAnimationFrame(refreshReadMoreAll); // add links for initial visible rows
+
+    // Recompute on resize—layout width changes can affect truncation
+    window.addEventListener('resize', () => {
+      // throttle with rAF
+      requestAnimationFrame(refreshReadMoreAll);
+    });
+  });
+  
+</script>
+
+</body>
+</html>
