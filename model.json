@@ -183,13 +183,23 @@
             },
             {
               "concept": [],
-              "description": "Details of any intra-operative complications encountered during the procedure, arising during the person\u2019s stay in the recovery unit or directly attributable to the procedure.",
+              "description": "<p>Details of any intra-operative complications encountered during the procedure, arising during the person\u2019s stay in the recovery unit or directly attributable to the procedure.</p>",
               "maximumMultiplicity": "1",
               "minimumMultiplicity": "0",
               "mro": "R",
               "name": "Complications related to procedure",
               "type": "group",
-              "derivedFrom": "PRSB-Standards/WRIST-core-information-standard/Procedures and therapies/Procedure record entry/Complications related to procedure@2-build.2.1"
+              "derivedFrom": "PRSB-Standards/WRIST-core-information-standard/Procedures and therapies/Procedure record entry/Complications related to procedure@2-build.2.1",
+              "informationType": "",
+              "valueDomain": [
+                {
+                  "type": "PRSB-Standards/WRIST-IPS-Datatypes/Coded Element@1-build.0.1"
+                }
+              ],
+              "relationshipType": "neither",
+              "isComponent": false,
+              "valueSets": "SNOMED_CT:\"<404684003 |Clinical finding (finding)|\" ",
+              "implementationGuidance": "<p><br></p>"
             },
             {
               "concept": [
