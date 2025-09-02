@@ -233,7 +233,7 @@
                   "type": "PRSB-Standards/WRIST-IPS-Datatypes/Text@1-build.0.1"
                 }
               ],
-              "valueSets": "Free text ",
+              "valueSets": "",
               "derivedFrom": "PRSB-Standards/WRIST-core-information-standard/Procedures and therapies/Procedure record entry/Comment@2-build.2.1",
               "informationType": "",
               "relationshipType": "neither",
