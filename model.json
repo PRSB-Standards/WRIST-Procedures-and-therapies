@@ -123,13 +123,23 @@
             },
             {
               "concept": [],
-              "description": "The body site of the procedure",
+              "description": "<p>The body site of the procedure.</p>",
               "maximumMultiplicity": "1",
               "minimumMultiplicity": "0",
               "mro": "R",
               "name": "Anatomical site",
               "type": "group",
-              "derivedFrom": "PRSB-Standards/WRIST-core-information-standard/Procedures and therapies/Procedure record entry/Anatomical site@2-build.2.1"
+              "derivedFrom": "PRSB-Standards/WRIST-core-information-standard/Procedures and therapies/Procedure record entry/Anatomical site@2-build.2.1",
+              "informationType": "",
+              "valueDomain": [
+                {
+                  "type": ""
+                }
+              ],
+              "relationshipType": "neither",
+              "isComponent": false,
+              "valueSets": "SNOMED_CT:\"<123037004 |Body structure (body structure)|\" ",
+              "implementationGuidance": "<p><br></p>"
             },
             {
               "concept": [
