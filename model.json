@@ -22,26 +22,6 @@
         {
           "concept": [
             {
-              "description": "The date the procedure was performed.",
-              "maximumMultiplicity": "1",
-              "minimumMultiplicity": "0",
-              "mro": "R",
-              "name": "Date",
-              "type": "item",
-              "valueDomain": [
-                {
-                  "property": [
-                    {
-                      "timeStampPrecision": "YMDHM"
-                    }
-                  ],
-                  "type": "datetime"
-                }
-              ],
-              "valueSets": "Date and time.",
-              "derivedFrom": "PRSB-Standards/WRIST-core-information-standard/Procedures and therapies/Procedure record entry/Date@2-build.2.1"
-            },
-            {
               "concept": [
                 {
                   "description": "The coded value for location.",
