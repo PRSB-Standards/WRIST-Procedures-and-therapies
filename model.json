@@ -610,9 +610,9 @@
         }
       ],
       "derivedFrom": "PRSB-Standards/WRIST-core-information-standard/Procedures and therapies@2-build.2.1",
-      "description": "<p>The details of any procedures performed. Includes both psychological and medical therapies and procedures (e.g. cognitive behaviour therapy, hip replacement)</p>",
+      "description": "<p>The details of any procedures performed, planned or not done. Includes both psychological and medical therapies and procedures (e.g. cognitive behaviour therapy, hip replacement).</p>",
       "implementationGuidance": "<p><br></p>",
-      "informationType": "",
+      "informationType": "Event.Record",
       "isComponent": true,
       "maximumMultiplicity": "1",
       "minimumMultiplicity": "0",
@@ -620,7 +620,12 @@
       "name": "Procedures and therapies",
       "relationshipType": "neither",
       "type": "group",
-      "valueSets": ""
+      "valueSets": "",
+      "valueDomain": [
+        {
+          "type": ""
+        }
+      ]
     }
   ]
 }
