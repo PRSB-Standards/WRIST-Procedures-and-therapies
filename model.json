@@ -122,28 +122,7 @@
               "relationshipType": "specialisation"
             },
             {
-              "concept": [
-                {
-                  "description": "Free text field to be used if no code is available",
-                  "maximumMultiplicity": "1",
-                  "minimumMultiplicity": "0",
-                  "mro": "R",
-                  "name": "Free text",
-                  "type": "item",
-                  "valueDomain": [
-                    {
-                      "property": [
-                        {
-                          "maxLength": "150"
-                        }
-                      ],
-                      "type": "text"
-                    }
-                  ],
-                  "valueSets": "Free text",
-                  "derivedFrom": "PRSB-Standards/WRIST-core-information-standard/Procedures and therapies/Procedure record entry/Anatomical site/Free text@2-build.2.1"
-                }
-              ],
+              "concept": [],
               "description": "The body site of the procedure",
               "maximumMultiplicity": "1",
               "minimumMultiplicity": "0",
