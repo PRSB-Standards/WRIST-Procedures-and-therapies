@@ -162,17 +162,24 @@
               "implementationGuidance": "<p><br></p>"
             },
             {
-              "name": "",
+              "name": "Outcome",
               "mro": "",
-              "description": "",
+              "description": "<p>The outcome of the procedure.</p>",
               "valueSets": "",
-              "implementationGuidance": "",
+              "implementationGuidance": "<p><br></p>",
               "informationType": "",
-              "minimumMultiplicity": "",
-              "maximumMultiplicity": "",
+              "minimumMultiplicity": "0",
+              "maximumMultiplicity": "1",
               "derivedFrom": "",
               "isComponent": false,
-              "concept": []
+              "concept": [],
+              "type": "item",
+              "valueDomain": [
+                {
+                  "type": "PRSB-Standards/WRIST-IPS-Datatypes/Coded Element@1-build.0.1"
+                }
+              ],
+              "relationshipType": "specialisation"
             },
             {
               "concept": [
