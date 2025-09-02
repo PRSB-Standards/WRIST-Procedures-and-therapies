@@ -82,17 +82,24 @@
               "relationshipType": "specialisation"
             },
             {
-              "name": "",
-              "mro": "",
-              "description": "",
-              "valueSets": "",
-              "implementationGuidance": "",
+              "name": "Indication for procedure ",
+              "mro": "R",
+              "description": "<p>The indication for the procedure.</p>",
+              "valueSets": "SNOMED_CT:\"404684003 | Clinical finding\" <br>SNOMED_CT:\"71388002 | Procedure\" ",
+              "implementationGuidance": "<p><br></p>",
               "informationType": "",
-              "minimumMultiplicity": "",
-              "maximumMultiplicity": "",
+              "minimumMultiplicity": "0",
+              "maximumMultiplicity": "1",
               "derivedFrom": "",
               "isComponent": false,
-              "concept": []
+              "concept": [],
+              "type": "item",
+              "valueDomain": [
+                {
+                  "type": "PRSB-Standards/WRIST-IPS-Datatypes/Coded Element@1-build.0.1"
+                }
+              ],
+              "relationshipType": "specialisation"
             },
             {
               "concept": [
