@@ -42,17 +42,24 @@
               "implementationGuidance": "<p><br></p>"
             },
             {
-              "name": "",
-              "mro": "",
-              "description": "",
-              "valueSets": "",
-              "implementationGuidance": "",
+              "name": "Status",
+              "mro": "R",
+              "description": "<p>A code specifying the state of the procedure. Generally, this will be the in-progress or completed state.</p>",
+              "valueSets": "<a href=\"https://simplifier.net/packages/hl7.fhir.r4.core/4.0.1/files/2832472\" target=\"_blank\" rel=\"noopener\">https://simplifier.net/packages/hl7.fhir.r4.core/4.0.1/files/2832472</a>",
+              "implementationGuidance": "<p>Example codes: preparation in-progress not-done: on-hold stopped completed entered-in-error unknown</p>",
               "informationType": "",
-              "minimumMultiplicity": "",
-              "maximumMultiplicity": "",
+              "minimumMultiplicity": "0",
+              "maximumMultiplicity": "1",
               "derivedFrom": "",
               "isComponent": false,
-              "concept": []
+              "concept": [],
+              "type": "item",
+              "valueDomain": [
+                {
+                  "type": "PRSB-Standards/WRIST-IPS-Datatypes/Coded Element@1-build.0.1"
+                }
+              ],
+              "relationshipType": "specialisation"
             },
             {
               "concept": [
