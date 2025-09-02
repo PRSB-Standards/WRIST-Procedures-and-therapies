@@ -64,7 +64,7 @@
             {
               "name": "Part of (parent procedure)",
               "mro": "R",
-              "description": "<p>Details of the parent procedure that this procedure is part of</p>",
+              "description": "<p>Details of the parent procedure that this procedure is part of.</p>",
               "valueSets": "SNOMED_CT:\"<71388002 |Procedure|\" <br>SNOMED_CT:\"< <129125009 |Procedure with explicit context|\" ",
               "implementationGuidance": "<p><br></p>",
               "informationType": "",
