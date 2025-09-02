@@ -102,17 +102,24 @@
               "relationshipType": "specialisation"
             },
             {
-              "name": "",
-              "mro": "",
-              "description": "",
-              "valueSets": "",
-              "implementationGuidance": "",
+              "name": "Not performed reason",
+              "mro": "R",
+              "description": "<p>Not performed reason for the procedure.</p>",
+              "valueSets": "<a href=\"https://www.hl7.org/fhir/R4/valueset-procedure-not-performed-reason.html\" target=\"_blank\" rel=\"noopener\">https://www.hl7.org/fhir/R4/valueset-procedure-not-performed-reason.html</a>",
+              "implementationGuidance": "<p><br></p>",
               "informationType": "",
-              "minimumMultiplicity": "",
-              "maximumMultiplicity": "",
+              "minimumMultiplicity": "0",
+              "maximumMultiplicity": "1",
               "derivedFrom": "",
               "isComponent": false,
-              "concept": []
+              "concept": [],
+              "type": "item",
+              "valueDomain": [
+                {
+                  "type": "PRSB-Standards/WRIST-IPS-Datatypes/Coded Element@1-build.0.1"
+                }
+              ],
+              "relationshipType": "specialisation"
             },
             {
               "concept": [
