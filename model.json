@@ -23,13 +23,23 @@
           "concept": [
             {
               "concept": [],
-              "description": "The therapeutic or diagnostic procedure performed. Includes both psychological and medical therapies and procedures (e.g. cognitive\nbehaviour therapy, or follow-up interventions as a result of physical health\nchecks). Complementary or alternative procedures and therapies should be recorded here.",
+              "description": "<p>The therapeutic or diagnostic procedure performed, planned or not done. Includes both psychological and medical therapies and procedures. Complementary or alternative procedures should be recorded here.</p>",
               "maximumMultiplicity": "1",
               "minimumMultiplicity": "1",
               "mro": "M",
               "name": "Procedure",
-              "type": "group",
-              "derivedFrom": "PRSB-Standards/WRIST-core-information-standard/Procedures and therapies/Procedure record entry/Procedure@2-build.2.1"
+              "type": "item",
+              "derivedFrom": "PRSB-Standards/WRIST-core-information-standard/Procedures and therapies/Procedure record entry/Procedure@2-build.2.1",
+              "informationType": "",
+              "valueDomain": [
+                {
+                  "type": "PRSB-Standards/WRIST-PRSB-Datatypes/Code or Text@1-build.0.1"
+                }
+              ],
+              "relationshipType": "neither",
+              "isComponent": false,
+              "valueSets": "SNOMED_CT:\"<71388002 |Procedure| OR <129125009 |Procedure with explicit context|\" ",
+              "implementationGuidance": "<p><br></p>"
             },
             {
               "concept": [
