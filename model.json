@@ -73,7 +73,15 @@
               "name": "Part of (parent procedure)",
               "mro": "R",
               "description": "<p>Details of the parent procedure that this procedure is part of.</p>",
-              "valueSets": "SNOMED_CT:\"<71388002 |Procedure|\" <br>SNOMED_CT:\"< <129125009 |Procedure with explicit context|\" ",
+              "valueSets": [
+                {
+                  "prefix": "SNOMED_CT",
+                  "use": "",
+                  "text": "<71388002 |Procedure| OR <129125009 |Procedure with explicit context|",
+                  "expression": "",
+                  "popUpText": "<p><br></p>"
+                }
+              ],
               "implementationGuidance": "<p><br></p>",
               "informationType": "",
               "minimumMultiplicity": "0",
