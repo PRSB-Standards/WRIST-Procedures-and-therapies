@@ -162,7 +162,15 @@
               ],
               "relationshipType": "neither",
               "isComponent": false,
-              "valueSets": "SNOMED_CT:\"<123037004 |Body structure (body structure)|\" ",
+              "valueSets": [
+                {
+                  "prefix": "SNOMED_CT",
+                  "use": "",
+                  "text": "<123037004 |Body structure (body structure)|",
+                  "expression": "",
+                  "popUpText": "<p><br></p>"
+                }
+              ],
               "implementationGuidance": "<p><br></p>"
             },
             {
