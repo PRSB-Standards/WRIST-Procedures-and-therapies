@@ -238,7 +238,15 @@
               ],
               "relationshipType": "neither",
               "isComponent": false,
-              "valueSets": "SNOMED_CT:\"<404684003 |Clinical finding (finding)|\" ",
+              "valueSets": [
+                {
+                  "prefix": "SNOMED_CT",
+                  "use": "",
+                  "text": "<404684003 |Clinical finding (finding)|",
+                  "expression": "",
+                  "popUpText": "<p><br></p>"
+                }
+              ],
               "implementationGuidance": "<p><br></p>"
             },
             {
