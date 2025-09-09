@@ -190,7 +190,15 @@
               ],
               "relationshipType": "specialisation",
               "isComponent": false,
-              "valueSets": "SNOMEDCT:\"<182353008 |Side (qualifier value)|\" ",
+              "valueSets": [
+                {
+                  "prefix": "SNOMED_CT",
+                  "use": "",
+                  "text": "<182353008 |Side (qualifier value)|",
+                  "expression": "",
+                  "popUpText": "<p><br></p>"
+                }
+              ],
               "implementationGuidance": "<p><br></p>"
             },
             {
