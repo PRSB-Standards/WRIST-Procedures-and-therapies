@@ -1,8 +1,8 @@
-# Procedures-and-therapies 1-build.0.1
+# Procedures-and-therapies 1-build.0.2
 
 Release Notes:
 
-Updated as agreed on CAG 16th July 2025.
+Re-added valuesets after WRIST update 09/09/2025
 
 <!-- LATEST_START -->
 * _(TOC will be generated here)_
