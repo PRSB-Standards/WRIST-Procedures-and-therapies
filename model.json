@@ -101,7 +101,15 @@
               "name": "Indication for procedure ",
               "mro": "R",
               "description": "<p>The indication for the procedure.</p>",
-              "valueSets": "SNOMED_CT:\"404684003 | Clinical finding\" <br>SNOMED_CT:\"71388002 | Procedure\" ",
+              "valueSets": [
+                {
+                  "prefix": "SNOMED_CT",
+                  "use": "",
+                  "text": "404684003 | Clinical finding OR 71388002 | Procedure",
+                  "expression": "",
+                  "popUpText": "<p><br></p>"
+                }
+              ],
               "implementationGuidance": "<p><br></p>",
               "informationType": "",
               "minimumMultiplicity": "0",
