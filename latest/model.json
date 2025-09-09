@@ -1,5 +1,5 @@
 {
-  "version": "1-build.0.0",
+  "version": "1-build.0.1",
   "name": "Procedures-and-therapies",
   "description": "<p>Updated Procedures and therapies as agreed on 16th July 2025.</p>",
   "component_sets": [
@@ -38,14 +38,32 @@
               ],
               "relationshipType": "neither",
               "isComponent": false,
-              "valueSets": "SNOMED_CT:\"<71388002 |Procedure| OR <129125009 |Procedure with explicit context|\" ",
+              "valueSets": [
+                {
+                  "prefix": "SNOMED_CT",
+                  "use": "",
+                  "text": "<71388002 |Procedure| OR <129125009 |Procedure with explicit context|",
+                  "expression": "",
+                  "popUpText": "<p><br></p>",
+                  "prefixDisplay": "SNOMED CT"
+                }
+              ],
               "implementationGuidance": "<p><br></p>"
             },
             {
               "name": "Status",
               "mro": "R",
               "description": "<p>A code specifying the state of the procedure. Generally, this will be the in-progress or completed state.</p>",
-              "valueSets": "<a href=\"https://simplifier.net/packages/hl7.fhir.r4.core/4.0.1/files/2832472\" target=\"_blank\" rel=\"noopener\">https://simplifier.net/packages/hl7.fhir.r4.core/4.0.1/files/2832472</a>",
+              "valueSets": [
+                {
+                  "prefix": "",
+                  "use": "",
+                  "text": "https://simplifier.net/packages/hl7.fhir.r4.core/4.0.1/files/2832472",
+                  "expression": "https://simplifier.net/packages/hl7.fhir.r4.core/4.0.1/files/2832472",
+                  "popUpText": "",
+                  "prefixDisplay": ""
+                }
+              ],
               "implementationGuidance": "<p>Example codes: preparation in-progress not-done: on-hold stopped completed entered-in-error unknown</p>",
               "informationType": "",
               "minimumMultiplicity": "0",
@@ -65,7 +83,16 @@
               "name": "Part of (parent procedure)",
               "mro": "R",
               "description": "<p>Details of the parent procedure that this procedure is part of.</p>",
-              "valueSets": "SNOMED_CT:\"<71388002 |Procedure|\" <br>SNOMED_CT:\"< <129125009 |Procedure with explicit context|\" ",
+              "valueSets": [
+                {
+                  "prefix": "SNOMED_CT",
+                  "use": "",
+                  "text": "<71388002 |Procedure| OR <129125009 |Procedure with explicit context|",
+                  "expression": "",
+                  "popUpText": "<p><br></p>",
+                  "prefixDisplay": "SNOMED CT"
+                }
+              ],
               "implementationGuidance": "<p><br></p>",
               "informationType": "",
               "minimumMultiplicity": "0",
@@ -85,7 +112,16 @@
               "name": "Indication for procedure ",
               "mro": "R",
               "description": "<p>The indication for the procedure.</p>",
-              "valueSets": "SNOMED_CT:\"404684003 | Clinical finding\" <br>SNOMED_CT:\"71388002 | Procedure\" ",
+              "valueSets": [
+                {
+                  "prefix": "SNOMED_CT",
+                  "use": "",
+                  "text": "404684003 | Clinical finding OR 71388002 | Procedure",
+                  "expression": "",
+                  "popUpText": "<p><br></p>",
+                  "prefixDisplay": "SNOMED CT"
+                }
+              ],
               "implementationGuidance": "<p><br></p>",
               "informationType": "",
               "minimumMultiplicity": "0",
@@ -105,7 +141,16 @@
               "name": "Not performed reason",
               "mro": "R",
               "description": "<p>Not performed reason for the procedure.</p>",
-              "valueSets": "<a href=\"https://www.hl7.org/fhir/R4/valueset-procedure-not-performed-reason.html\" target=\"_blank\" rel=\"noopener\">https://www.hl7.org/fhir/R4/valueset-procedure-not-performed-reason.html</a>",
+              "valueSets": [
+                {
+                  "prefix": "",
+                  "use": "",
+                  "text": "https://www.hl7.org/fhir/R4/valueset-procedure-not-performed-reason.html",
+                  "expression": "https://www.hl7.org/fhir/R4/valueset-procedure-not-performed-reason.html",
+                  "popUpText": "",
+                  "prefixDisplay": ""
+                }
+              ],
               "implementationGuidance": "<p><br></p>",
               "informationType": "",
               "minimumMultiplicity": "0",
@@ -138,7 +183,16 @@
               ],
               "relationshipType": "neither",
               "isComponent": false,
-              "valueSets": "SNOMED_CT:\"<123037004 |Body structure (body structure)|\" ",
+              "valueSets": [
+                {
+                  "prefix": "SNOMED_CT",
+                  "use": "",
+                  "text": "<123037004 |Body structure (body structure)|",
+                  "expression": "",
+                  "popUpText": "<p><br></p>",
+                  "prefixDisplay": "SNOMED CT"
+                }
+              ],
               "implementationGuidance": "<p><br></p>"
             },
             {
@@ -158,14 +212,23 @@
               ],
               "relationshipType": "specialisation",
               "isComponent": false,
-              "valueSets": "SNOMEDCT:\"<182353008 |Side (qualifier value)|\" ",
+              "valueSets": [
+                {
+                  "prefix": "SNOMED_CT",
+                  "use": "",
+                  "text": "<182353008 |Side (qualifier value)|",
+                  "expression": "",
+                  "popUpText": "<p><br></p>",
+                  "prefixDisplay": "SNOMED CT"
+                }
+              ],
               "implementationGuidance": "<p><br></p>"
             },
             {
               "name": "Outcome",
               "mro": "",
               "description": "<p>The outcome of the procedure.</p>",
-              "valueSets": "",
+              "valueSets": [],
               "implementationGuidance": "<p><br></p>",
               "informationType": "",
               "minimumMultiplicity": "0",
@@ -198,7 +261,16 @@
               ],
               "relationshipType": "neither",
               "isComponent": false,
-              "valueSets": "SNOMED_CT:\"<404684003 |Clinical finding (finding)|\" ",
+              "valueSets": [
+                {
+                  "prefix": "SNOMED_CT",
+                  "use": "",
+                  "text": "<404684003 |Clinical finding (finding)|",
+                  "expression": "",
+                  "popUpText": "<p><br></p>",
+                  "prefixDisplay": "SNOMED CT"
+                }
+              ],
               "implementationGuidance": "<p><br></p>"
             },
             {
@@ -218,7 +290,7 @@
               ],
               "relationshipType": "neither",
               "isComponent": false,
-              "valueSets": "",
+              "valueSets": [],
               "implementationGuidance": "<p><br></p>"
             },
             {
@@ -233,7 +305,7 @@
                   "type": "PRSB-Standards/WRIST-IPS-Datatypes/Text@1-build.0.1"
                 }
               ],
-              "valueSets": "",
+              "valueSets": [],
               "derivedFrom": "PRSB-Standards/WRIST-core-information-standard/Procedures and therapies/Procedure record entry/Comment@2-build.2.1",
               "informationType": "",
               "relationshipType": "neither",
@@ -261,7 +333,7 @@
       "name": "Procedures and therapies",
       "relationshipType": "neither",
       "type": "group",
-      "valueSets": "",
+      "valueSets": [],
       "valueDomain": [
         {
           "type": ""
